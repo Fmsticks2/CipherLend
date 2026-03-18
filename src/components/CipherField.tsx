@@ -46,13 +46,13 @@ export default function CipherField({
 
   if (encrypted) {
     return (
-      <div className="relative flex items-center w-full bg-cipher-surface border border-cipher-border rounded px-3 py-2 h-10 overflow-hidden">
-        <Lock className="w-4 h-4 text-cipher-secondary mr-2 shrink-0" />
-        <span className={`font-mono text-sm ${isAnimating ? 'cipher-shimmer' : 'text-cipher-secondary'}`}>
+      <div className="relative flex items-center w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 h-12 overflow-hidden shadow-inner">
+        <Lock className="w-4 h-4 text-zinc-500 mr-3 shrink-0" />
+        <span className={`font-mono text-sm ${isAnimating ? 'animate-pulse text-zinc-400' : 'text-zinc-500'}`}>
           {isAnimating ? displayValue : `🔒 ${displayValue}`}
         </span>
         {!isAnimating && (
-          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-cipher-secondary/50 uppercase tracking-widest border border-cipher-secondary/20 px-1.5 rounded bg-cipher-secondary/5">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-500 uppercase tracking-widest border border-white/10 px-2 py-0.5 rounded bg-white/5">
             Encrypted
           </span>
         )}
@@ -63,7 +63,7 @@ export default function CipherField({
   return (
     <div className="relative flex items-center w-full">
       {prefix && (
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cipher-muted font-mono">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-mono text-sm">
           {prefix}
         </span>
       )}
@@ -72,7 +72,7 @@ export default function CipherField({
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
-        className={`w-full bg-cipher-surface border border-cipher-border rounded px-3 py-2 h-10 text-cipher-text font-mono text-sm focus:outline-none focus:border-cipher-primary transition-colors ${prefix ? 'pl-8' : ''}`}
+        className={`w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 h-12 text-white font-mono text-sm focus:outline-none focus:border-white/30 transition-colors shadow-inner ${prefix ? 'pl-8' : ''}`}
       />
     </div>
   );
