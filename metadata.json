@@ -1,0 +1,5 @@
+{
+  "name": "CipherLend",
+  "description": "A private credit underwriting protocol built on Fhenix FHE. Enables borrowers to submit encrypted financials, lenders to view risk-banded loan opportunities, and auditors to verify compliance without exposing raw data.",
+  "requestFramePermissions": []
+}
