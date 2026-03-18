@@ -37,18 +37,18 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <h4 className="text-white font-medium mb-6 text-sm tracking-wide">Developers</h4>
             <ul className="space-y-4 text-sm text-zinc-500">
-              <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Smart Contracts</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">GitHub</a></li>
+              <li><Link to="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
+              <li><Link to="/contracts" className="hover:text-white transition-colors">Smart Contracts</Link></li>
+              <li><a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a></li>
             </ul>
           </div>
 
           <div className="col-span-1 md:col-span-2">
             <h4 className="text-white font-medium mb-6 text-sm tracking-wide">Company</h4>
             <ul className="space-y-4 text-sm text-zinc-500">
-              <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
+              <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
+              <li><Link to="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+              <li><Link to="/careers" className="hover:text-white transition-colors">Careers</Link></li>
             </ul>
           </div>
         </div>
@@ -56,10 +56,10 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/10 text-sm text-zinc-600">
           <p>© 2026 CipherLend. All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-zinc-400 transition-colors">Twitter</a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">Discord</a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">Privacy Policy</a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">Twitter</a>
+            <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">Discord</a>
+            <Link to="/terms" className="hover:text-zinc-400 transition-colors">Terms of Service</Link>
+            <Link to="/privacy" className="hover:text-zinc-400 transition-colors">Privacy Policy</Link>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Filter, ChevronRight, Lock, CheckCircle2, ShieldAlert, Activity, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import TopNav from '../components/TopNav';
@@ -15,6 +15,30 @@ const LOANS = [
 export default function Lender() {
   const [selectedLoan, setSelectedLoan] = useState<typeof LOANS[0] | null>(null);
   const [fundAmount, setFundAmount] = useState('');
+  const [isFunding, setIsFunding] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const handleFund = () => {
+    if (!fundAmount || isNaN(Number(fundAmount)) || Number(fundAmount) <= 0) {
+      setToast({ message: 'Please enter a valid funding amount', type: 'error' });
+      return;
+    }
+    
+    setIsFunding(true);
+    setTimeout(() => {
+      setIsFunding(false);
+      setToast({ message: `Successfully funded $${Number(fundAmount).toLocaleString()} to ${selectedLoan?.id}`, type: 'success' });
+      setFundAmount('');
+      setTimeout(() => setSelectedLoan(null), 1500);
+    }, 2000);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#050505] relative overflow-hidden">
@@ -22,6 +46,26 @@ export default function Lender() {
       <div className="absolute inset-0 data-stream-bg opacity-40 pointer-events-none z-0"></div>
       
       <TopNav role="Lender" />
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-4 right-4 z-50"
+          >
+            <div className={`px-4 py-3 rounded-lg border shadow-lg flex items-center gap-2 font-mono text-sm backdrop-blur-md ${
+              toast.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+              toast.type === 'error' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
+              'bg-white/5 border-white/10 text-white'
+            }`}>
+              {toast.message}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-32 pb-20 relative z-10">
         {/* Portfolio Summary */}
@@ -294,8 +338,16 @@ export default function Lender() {
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 pl-10 text-white font-mono text-lg focus:outline-none focus:border-white/30 transition-all"
                       />
                     </div>
-                    <button className="px-8 py-4 rounded-xl bg-white text-black hover:bg-zinc-200 font-medium transition-all whitespace-nowrap shadow-lg">
-                      Confirm Funding
+                    <button 
+                      onClick={handleFund}
+                      disabled={isFunding || !fundAmount}
+                      className="px-8 py-4 rounded-xl bg-white text-black hover:bg-zinc-200 font-medium transition-all whitespace-nowrap shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {isFunding ? (
+                        <><Activity className="w-4 h-4 animate-spin" /> Processing...</>
+                      ) : (
+                        'Confirm Funding'
+                      )}
                     </button>
                   </div>
                 </div>
