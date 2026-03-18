@@ -40,21 +40,21 @@ export default function Borrower() {
   const handleEncrypt = () => {
     setIsEncrypted(true);
     setTimeout(() => {
-      setToast({ message: '🔒 Fields encrypted successfully', type: 'success' });
+      setToast({ message: 'Fields encrypted successfully', type: 'success' });
     }, 1000);
   };
 
   const handleSubmit = () => {
     setIsSubmitting(true);
-    setSubmitStatus('🔐 Encrypting...');
+    setSubmitStatus('Encrypting...');
     
     setTimeout(() => {
-      setSubmitStatus('⛓️ Submitting to Fhenix...');
-      setToast({ message: '⛓️ Profile submitted to Fhenix', type: 'info' });
+      setSubmitStatus('Submitting to Fhenix...');
+      setToast({ message: 'Profile submitted to Fhenix', type: 'info' });
       setTimeout(() => {
-        setSubmitStatus('⚙️ Running Underwriting Model...');
+        setSubmitStatus('Running Underwriting Model...');
         setTimeout(() => {
-          setSubmitStatus('✅ Score Ready');
+          setSubmitStatus('Score Ready');
           setIsSubmitting(false);
           setCurrentStep(3);
         }, 2000);
@@ -243,9 +243,9 @@ export default function Borrower() {
                     }`}
                   >
                     {isEncrypted ? (
-                      <>🚀 Proceed to Submission <ChevronRight className="w-4 h-4" /></>
+                      <>Proceed to Submission <ChevronRight className="w-4 h-4" /></>
                     ) : (
-                      <><Lock className="w-4 h-4" /> 🔐 Encrypt All Fields</>
+                      <><Lock className="w-4 h-4" /> Encrypt All Fields</>
                     )}
                   </button>
                   {!isEncrypted && (
@@ -275,7 +275,7 @@ export default function Borrower() {
                 <div className="bg-black/40 border border-white/10 rounded-xl p-6 font-mono text-sm text-zinc-500 break-all shadow-inner">
                   <div className="flex items-center gap-2 mb-4 text-zinc-300">
                     <Lock className="w-4 h-4" />
-                    <span className="uppercase tracking-widest text-xs">🔐 Encrypted Payload</span>
+                    <span className="uppercase tracking-widest text-xs">Encrypted Payload</span>
                   </div>
                   <div className="leading-relaxed opacity-70">
                     0x{Array.from({length: 256}, () => Math.floor(Math.random() * 16).toString(16)).join('')}
@@ -283,7 +283,7 @@ export default function Borrower() {
                 </div>
 
                 <div className="flex justify-between items-center p-5 border border-white/10 rounded-xl bg-white/5">
-                  <span className="font-mono text-xs text-zinc-500 uppercase tracking-widest">⛽ Estimated Gas Fee</span>
+                  <span className="font-mono text-xs text-zinc-500 uppercase tracking-widest">Estimated Gas Fee</span>
                   <span className="font-mono text-sm text-white">0.0042 FHE</span>
                 </div>
 
@@ -296,7 +296,7 @@ export default function Borrower() {
                     {isSubmitting ? (
                       <><Activity className="w-4 h-4 animate-spin" /> {submitStatus}</>
                     ) : (
-                      <><Shield className="w-4 h-4" /> 🛡️ Submit Encrypted Profile</>
+                      <><Shield className="w-4 h-4" /> Submit Encrypted Profile</>
                     )}
                   </button>
                   
@@ -332,7 +332,7 @@ export default function Borrower() {
                 <div className="border border-white/10 rounded-xl overflow-hidden bg-black/20 backdrop-blur-sm">
                   <div className="bg-white/5 border-b border-white/10 px-6 py-4 flex items-center gap-3">
                     <Shield className="w-5 h-5 text-zinc-300" strokeWidth={1.5} />
-                    <h3 className="font-mono text-xs uppercase tracking-widest text-zinc-300">🛡️ Your Credit Profile</h3>
+                    <h3 className="font-mono text-xs uppercase tracking-widest text-zinc-300">Your Credit Profile</h3>
                   </div>
                   <div className="p-6 space-y-1 divide-y divide-white/5">
                     <div className="flex justify-between items-center py-4">
@@ -369,7 +369,7 @@ export default function Borrower() {
                     onClick={() => setCurrentStep(4)}
                     className="px-8 py-3.5 rounded-lg bg-white text-black hover:bg-zinc-200 font-medium flex items-center justify-center gap-2 transition-all duration-300"
                   >
-                    <FileText className="w-4 h-4" /> 📄 Share with Lenders
+                    <FileText className="w-4 h-4" /> Share with Lenders
                   </button>
                 </div>
               </motion.div>

@@ -49,7 +49,7 @@ export default function CipherField({
       <div className="relative flex items-center w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 h-12 overflow-hidden shadow-inner">
         <Lock className="w-4 h-4 text-zinc-500 mr-3 shrink-0" />
         <span className={`font-mono text-sm ${isAnimating ? 'animate-pulse text-zinc-400' : 'text-zinc-500'}`}>
-          {isAnimating ? displayValue : `🔒 ${displayValue}`}
+          {displayValue}
         </span>
         {!isAnimating && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-500 uppercase tracking-widest border border-white/10 px-2 py-0.5 rounded bg-white/5">
