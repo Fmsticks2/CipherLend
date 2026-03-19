@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Filter, ChevronRight, Lock, CheckCircle2, ShieldAlert, Activity, X } from 'lucide-react';
+import { Filter, ChevronRight, Lock, CheckCircle2, ShieldAlert, Activity, X, Briefcase, LayoutGrid, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import TopNav from '../components/TopNav';
 import RiskBand from '../components/RiskBand';
@@ -12,10 +12,18 @@ const LOANS = [
   { id: 'LOAN-0118', amount: 400000, rate: 10.1, ltv: 70, term: 12, sector: 'CeFi Exchange', band: 'BBB', block: '4422156' },
 ];
 
+const PORTFOLIO = [
+  { id: 'LOAN-0021', amount: 50000, rate: 9.5, status: 'Active', nextPayment: 'Apr 12, 2026', accrued: 1250, band: 'A' },
+  { id: 'LOAN-0034', amount: 100000, rate: 11.2, status: 'Active', nextPayment: 'Apr 15, 2026', accrued: 3100, band: 'BBB' },
+  { id: 'LOAN-0012', amount: 25000, rate: 7.8, status: 'Completed', nextPayment: '-', accrued: 0, band: 'AA' },
+];
+
 export default function Lender() {
+  const [activeTab, setActiveTab] = useState<'marketplace' | 'portfolio'>('marketplace');
   const [selectedLoan, setSelectedLoan] = useState<typeof LOANS[0] | null>(null);
   const [fundAmount, setFundAmount] = useState('');
   const [isFunding, setIsFunding] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
 
   useEffect(() => {
@@ -37,6 +45,14 @@ export default function Lender() {
       setToast({ message: `Successfully funded $${Number(fundAmount).toLocaleString()} to ${selectedLoan?.id}`, type: 'success' });
       setFundAmount('');
       setTimeout(() => setSelectedLoan(null), 1500);
+    }, 2000);
+  };
+
+  const handleClaimYield = () => {
+    setIsClaiming(true);
+    setTimeout(() => {
+      setIsClaiming(false);
+      setToast({ message: 'Successfully claimed $4,350 in accrued yield', type: 'success' });
     }, 2000);
   };
 
@@ -73,7 +89,7 @@ export default function Lender() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
         >
           <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 md:p-8">
             <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-3">Total Deployed</div>
@@ -93,156 +109,246 @@ export default function Lender() {
           </div>
         </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filter Sidebar */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="w-full lg:w-64 shrink-0 space-y-8"
+        {/* Tabs */}
+        <div className="flex items-center gap-4 mb-12 border-b border-white/10 pb-4">
+          <button 
+            onClick={() => setActiveTab('marketplace')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+              activeTab === 'marketplace' ? 'bg-white text-black' : 'text-zinc-400 hover:text-white hover:bg-white/5'
+            }`}
           >
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                <Filter className="w-5 h-5 text-zinc-400" />
-              </div>
-              <h2 className="font-display font-medium text-xl text-white">Filters</h2>
-            </div>
+            <LayoutGrid className="w-4 h-4" /> Marketplace
+          </button>
+          <button 
+            onClick={() => setActiveTab('portfolio')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+              activeTab === 'portfolio' ? 'bg-white text-black' : 'text-zinc-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Briefcase className="w-4 h-4" /> My Portfolio
+          </button>
+        </div>
 
-            <div className="space-y-4">
-              <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest ml-1">Risk Band</label>
-              <div className="flex flex-wrap gap-2">
-                {['AA', 'A', 'BBB', 'BB'].map(band => (
-                  <button key={band} className="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10 text-sm font-mono text-zinc-300 transition-all">
-                    {band}
-                  </button>
+        <AnimatePresence mode="wait">
+          {activeTab === 'marketplace' ? (
+            <motion.div 
+              key="marketplace"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="flex flex-col lg:flex-row gap-8"
+            >
+              {/* Filter Sidebar */}
+              <div className="w-full lg:w-64 shrink-0 space-y-8">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <Filter className="w-5 h-5 text-zinc-400" />
+                  </div>
+                  <h2 className="font-display font-medium text-xl text-white">Filters</h2>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest ml-1">Risk Band</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['AA', 'A', 'BBB', 'BB'].map(band => (
+                      <button key={band} className="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10 text-sm font-mono text-zinc-300 transition-all">
+                        {band}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest flex justify-between ml-1">
+                    <span>Loan Size</span>
+                    <span className="text-indigo-400">$50K - $5M</span>
+                  </label>
+                  <input type="range" className="w-full accent-indigo-500" min="50000" max="5000000" />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest ml-1">Min Interest Rate</label>
+                  <div className="relative">
+                    <input type="number" placeholder="0" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white focus:outline-none focus:border-white/30 transition-all" />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 font-mono">%</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest ml-1">Sector</label>
+                  <div className="relative">
+                    <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white focus:outline-none focus:border-white/30 transition-all appearance-none">
+                      <option className="bg-zinc-900">All Sectors</option>
+                      <option className="bg-zinc-900">DeFi Infrastructure</option>
+                      <option className="bg-zinc-900">Asset Management</option>
+                      <option className="bg-zinc-900">Market Making</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-zinc-500">
+                      <ChevronRight className="w-4 h-4 rotate-90" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest ml-1">Covenant Type</label>
+                  <div className="flex flex-col gap-3">
+                    <label className="flex items-center gap-3 text-sm font-mono cursor-pointer group">
+                      <div className="relative flex items-center justify-center">
+                        <input type="checkbox" className="peer appearance-none w-5 h-5 border border-white/20 rounded-md bg-white/5 checked:bg-indigo-500 checked:border-indigo-500 transition-all cursor-pointer" defaultChecked />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" />
+                      </div>
+                      <span className="text-zinc-400 group-hover:text-white transition-colors">DSCR-linked</span>
+                    </label>
+                    <label className="flex items-center gap-3 text-sm font-mono cursor-pointer group">
+                      <div className="relative flex items-center justify-center">
+                        <input type="checkbox" className="peer appearance-none w-5 h-5 border border-white/20 rounded-md bg-white/5 checked:bg-indigo-500 checked:border-indigo-500 transition-all cursor-pointer" defaultChecked />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" />
+                      </div>
+                      <span className="text-zinc-400 group-hover:text-white transition-colors">Fixed</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Loan Cards */}
+              <div className="flex-grow space-y-6">
+                <div className="flex justify-between items-center mb-8">
+                  <h2 className="font-display font-medium text-2xl text-white">Active Opportunities</h2>
+                  <span className="text-[10px] font-mono text-zinc-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 uppercase tracking-widest">Showing {LOANS.length} loans</span>
+                </div>
+
+                {LOANS.map((loan, i) => (
+                  <motion.div 
+                    key={loan.id} 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.1 }}
+                    className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-8 flex flex-col md:flex-row justify-between gap-8 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+                  >
+                    <div className="flex-grow space-y-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="flex items-center gap-4 mb-2">
+                            <h3 className="font-mono font-medium text-xl text-white group-hover:text-indigo-400 transition-colors">{loan.id}</h3>
+                            <RiskBand band={loan.band} />
+                          </div>
+                          <p className="text-sm text-zinc-400 font-light">{loan.sector}</p>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-display font-medium text-3xl text-white">${loan.amount.toLocaleString()}</div>
+                          <div className="text-sm font-mono text-emerald-400 mt-1">{loan.rate}% APR</div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-y border-white/10">
+                        <div>
+                          <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">LTV</div>
+                          <div className="font-mono font-medium text-lg text-white">{loan.ltv}%</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">Term</div>
+                          <div className="font-mono font-medium text-lg text-white">{loan.term} mo</div>
+                        </div>
+                        <div className="col-span-2">
+                          <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">Borrower Profile</div>
+                          <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400 bg-white/5 w-fit px-3 py-1.5 rounded-lg border border-white/10 uppercase tracking-widest">
+                            <Lock className="w-3.5 h-3.5 text-emerald-400" /> Encrypted
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                        <div className="flex items-center gap-2.5 text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
+                          <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+                          Score Verified On-chain (block #{loan.block})
+                        </div>
+                        <div className="flex gap-3">
+                          <button 
+                            onClick={() => setSelectedLoan(loan)}
+                            className="px-6 py-2.5 rounded-lg border border-white/20 hover:bg-white/10 text-sm font-medium text-white transition-all"
+                          >
+                            View Details
+                          </button>
+                          <button 
+                            onClick={() => setSelectedLoan(loan)}
+                            className="px-6 py-2.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-sm font-medium transition-all shadow-lg"
+                          >
+                            Fund This Loan
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
-
-            <div className="space-y-4">
-              <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest flex justify-between ml-1">
-                <span>Loan Size</span>
-                <span className="text-indigo-400">$50K - $5M</span>
-              </label>
-              <input type="range" className="w-full accent-indigo-500" min="50000" max="5000000" />
-            </div>
-
-            <div className="space-y-4">
-              <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest ml-1">Min Interest Rate</label>
-              <div className="relative">
-                <input type="number" placeholder="0" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white focus:outline-none focus:border-white/30 transition-all" />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 font-mono">%</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest ml-1">Sector</label>
-              <div className="relative">
-                <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white focus:outline-none focus:border-white/30 transition-all appearance-none">
-                  <option className="bg-zinc-900">All Sectors</option>
-                  <option className="bg-zinc-900">DeFi Infrastructure</option>
-                  <option className="bg-zinc-900">Asset Management</option>
-                  <option className="bg-zinc-900">Market Making</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-zinc-500">
-                  <ChevronRight className="w-4 h-4 rotate-90" />
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="portfolio"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-8"
+            >
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-4">
+                <div>
+                  <h2 className="font-display font-medium text-2xl text-white">My Funded Loans</h2>
+                  <p className="text-zinc-400 font-light">Track your active investments and claim accrued yield.</p>
                 </div>
+                <button 
+                  onClick={handleClaimYield}
+                  disabled={isClaiming}
+                  className="px-6 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-medium flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isClaiming ? (
+                    <><Activity className="w-4 h-4 animate-spin" /> Claiming...</>
+                  ) : (
+                    <><ArrowUpRight className="w-4 h-4" /> Claim All Yield ($4,350)</>
+                  )}
+                </button>
               </div>
-            </div>
 
-            <div className="space-y-4">
-              <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest ml-1">Covenant Type</label>
-              <div className="flex flex-col gap-3">
-                <label className="flex items-center gap-3 text-sm font-mono cursor-pointer group">
-                  <div className="relative flex items-center justify-center">
-                    <input type="checkbox" className="peer appearance-none w-5 h-5 border border-white/20 rounded-md bg-white/5 checked:bg-indigo-500 checked:border-indigo-500 transition-all cursor-pointer" defaultChecked />
-                    <CheckCircle2 className="w-3.5 h-3.5 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" />
-                  </div>
-                  <span className="text-zinc-400 group-hover:text-white transition-colors">DSCR-linked</span>
-                </label>
-                <label className="flex items-center gap-3 text-sm font-mono cursor-pointer group">
-                  <div className="relative flex items-center justify-center">
-                    <input type="checkbox" className="peer appearance-none w-5 h-5 border border-white/20 rounded-md bg-white/5 checked:bg-indigo-500 checked:border-indigo-500 transition-all cursor-pointer" defaultChecked />
-                    <CheckCircle2 className="w-3.5 h-3.5 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" />
-                  </div>
-                  <span className="text-zinc-400 group-hover:text-white transition-colors">Fixed</span>
-                </label>
+              <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/20 backdrop-blur-sm">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/10 bg-white/5">
+                      <th className="py-4 px-6 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">Loan ID</th>
+                      <th className="py-4 px-6 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">Principal</th>
+                      <th className="py-4 px-6 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">Rate</th>
+                      <th className="py-4 px-6 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">Risk Band</th>
+                      <th className="py-4 px-6 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">Next Payment</th>
+                      <th className="py-4 px-6 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">Accrued Yield</th>
+                      <th className="py-4 px-6 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {PORTFOLIO.map((loan) => (
+                      <tr key={loan.id} className="hover:bg-white/5 transition-colors group">
+                        <td className="py-5 px-6 font-mono text-sm text-zinc-300 group-hover:text-white transition-colors">{loan.id}</td>
+                        <td className="py-5 px-6 font-mono text-sm text-white">${loan.amount.toLocaleString()}</td>
+                        <td className="py-5 px-6 font-mono text-sm text-zinc-300">{loan.rate}%</td>
+                        <td className="py-5 px-6"><RiskBand band={loan.band} /></td>
+                        <td className="py-5 px-6 font-mono text-sm text-zinc-500">{loan.nextPayment}</td>
+                        <td className="py-5 px-6 font-mono text-sm text-emerald-400">${loan.accrued.toLocaleString()}</td>
+                        <td className="py-5 px-6">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border ${
+                            loan.status === 'Active' 
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                              : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
+                          }`}>
+                            {loan.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          </motion.div>
-
-          {/* Loan Cards */}
-          <div className="flex-grow space-y-6">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="font-display font-medium text-2xl text-white">Active Opportunities</h2>
-              <span className="text-[10px] font-mono text-zinc-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 uppercase tracking-widest">Showing {LOANS.length} loans</span>
-            </div>
-
-            {LOANS.map((loan, i) => (
-              <motion.div 
-                key={loan.id} 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.2 + (i * 0.1) }}
-                className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-8 flex flex-col md:flex-row justify-between gap-8 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
-              >
-                <div className="flex-grow space-y-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-4 mb-2">
-                        <h3 className="font-mono font-medium text-xl text-white group-hover:text-indigo-400 transition-colors">{loan.id}</h3>
-                        <RiskBand band={loan.band} />
-                      </div>
-                      <p className="text-sm text-zinc-400 font-light">{loan.sector}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-display font-medium text-3xl text-white">${loan.amount.toLocaleString()}</div>
-                      <div className="text-sm font-mono text-emerald-400 mt-1">{loan.rate}% APR</div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-y border-white/10">
-                    <div>
-                      <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">LTV</div>
-                      <div className="font-mono font-medium text-lg text-white">{loan.ltv}%</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">Term</div>
-                      <div className="font-mono font-medium text-lg text-white">{loan.term} mo</div>
-                    </div>
-                    <div className="col-span-2">
-                      <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">Borrower Profile</div>
-                      <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400 bg-white/5 w-fit px-3 py-1.5 rounded-lg border border-white/10 uppercase tracking-widest">
-                        <Lock className="w-3.5 h-3.5 text-emerald-400" /> Encrypted
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                    <div className="flex items-center gap-2.5 text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
-                      <CheckCircle2 className="w-4 h-4 text-indigo-400" />
-                      Score Verified On-chain (block #{loan.block})
-                    </div>
-                    <div className="flex gap-3">
-                      <button 
-                        onClick={() => setSelectedLoan(loan)}
-                        className="px-6 py-2.5 rounded-lg border border-white/20 hover:bg-white/10 text-sm font-medium text-white transition-all"
-                      >
-                        View Details
-                      </button>
-                      <button 
-                        onClick={() => setSelectedLoan(loan)}
-                        className="px-6 py-2.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-sm font-medium transition-all shadow-lg"
-                      >
-                        Fund This Loan
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
       <Footer />
 
