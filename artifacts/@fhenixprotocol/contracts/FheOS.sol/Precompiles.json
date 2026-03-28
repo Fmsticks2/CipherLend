@@ -1,0 +1,24 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Precompiles",
+  "sourceName": "@fhenixprotocol/contracts/FheOS.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "Fheos",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608080604052346018576075908161001e823930815050f35b600080fdfe6080806040526004361015601257600080fd5b60003560e01c6313d8d46414602657600080fd5b6000366003190112603a5780608060209252f35b600080fdfea264697066735822122097a034fbde084b65058e023f393ec78e25abf7c5831380fea6a38a6be52a221f64736f6c63430008180033",
+  "deployedBytecode": "0x6080806040526004361015601257600080fd5b60003560e01c6313d8d46414602657600080fd5b6000366003190112603a5780608060209252f35b600080fdfea264697066735822122097a034fbde084b65058e023f393ec78e25abf7c5831380fea6a38a6be52a221f64736f6c63430008180033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

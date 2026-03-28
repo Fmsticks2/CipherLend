@@ -63,35 +63,9 @@ contract BorrowerRegistry is Permissioned {
         return (profile.industrySector, profile.submittedAt, profile.version, hasProfile[borrower]);
     }
 
-    function getEncryptedProfile(address borrower)
-        external
-        view
-        returns (
-            euint256 annualRevenue,
-            euint256 totalDebt,
-            euint256 monthlyBurnRate,
-            euint256 accountsReceivable,
-            euint256 cashOnHand,
-            euint32 businessAgeMonths,
-            uint8 industrySector,
-            uint256 submittedAt,
-            uint256 version,
-            bool exists
-        )
-    {
-        BorrowerProfile storage profile = profiles[borrower];
-        return (
-            profile.annualRevenue,
-            profile.totalDebt,
-            profile.monthlyBurnRate,
-            profile.accountsReceivable,
-            profile.cashOnHand,
-            profile.businessAgeMonths,
-            profile.industrySector,
-            profile.submittedAt,
-            profile.version,
-            hasProfile[borrower]
-        );
+    function getEncryptedProfile(address borrower) external view returns (BorrowerProfile memory profile, bool exists) {
+        profile = profiles[borrower];
+        exists = hasProfile[borrower];
     }
 
     function sealRevenueBucket(address borrower, Permission calldata permission)
@@ -133,12 +107,18 @@ contract BorrowerRegistry is Permissioned {
         uint8 sector,
         uint256 version
     ) internal {
+        euint128 annualRevenue128 = FHE.asEuint128(revenue);
+        euint128 totalDebt128 = FHE.asEuint128(debt);
+        euint128 monthlyBurnRate128 = FHE.asEuint128(burnRate);
+        euint128 accountsReceivable128 = FHE.asEuint128(receivables);
+        euint128 cashOnHand128 = FHE.asEuint128(cash);
+
         profiles[borrower] = BorrowerProfile({
-            annualRevenue: FHE.asEuint256(revenue),
-            totalDebt: FHE.asEuint256(debt),
-            monthlyBurnRate: FHE.asEuint256(burnRate),
-            accountsReceivable: FHE.asEuint256(receivables),
-            cashOnHand: FHE.asEuint256(cash),
+            annualRevenue: FHE.asEuint256(annualRevenue128),
+            totalDebt: FHE.asEuint256(totalDebt128),
+            monthlyBurnRate: FHE.asEuint256(monthlyBurnRate128),
+            accountsReceivable: FHE.asEuint256(accountsReceivable128),
+            cashOnHand: FHE.asEuint256(cashOnHand128),
             businessAgeMonths: FHE.asEuint32(businessAge),
             industrySector: sector,
             borrower: borrower,

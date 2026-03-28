@@ -12,12 +12,13 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit && tsc -p backend/tsconfig.json --noEmit",
     "typecheck": "tsc --noEmit && tsc -p backend/tsconfig.json --noEmit",
-    "compile": "hardhat compile",
-    "test": "hardhat test",
-    "deploy:helium": "hardhat run scripts/deploy.ts --network fhenixHelium"
+    "compile": "hardhat --config hardhat.config.cjs compile",
+    "test": "hardhat --config hardhat.config.cjs test",
+    "deploy:helium": "hardhat --config hardhat.config.cjs run scripts/deploy.ts --network fhenixHelium"
   },
   "dependencies": {
     "@cofhe/sdk": "^0.4.0",
+    "@openzeppelin/contracts": "5.0.2",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "dotenv": "^17.2.3",
@@ -41,6 +42,7 @@
     "fhenix-hardhat-plugin": "^0.3.2",
     "hardhat": "^2.22.18",
     "tailwindcss": "^4.1.14",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typechain": "^8.3.2",
     "typescript": "~5.8.2",
