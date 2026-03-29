@@ -14,17 +14,14 @@ export const getSigner = () => signer;
 
 export const getFhenixClient = async (): Promise<FhenixClient> => {
   if (!fhenixClient) {
-    fhenixClient = new FhenixClient({ provider });
+    fhenixClient = new FhenixClient({ provider: provider as any });
   }
   return fhenixClient;
 };
 
 export const initCofhe = async () => {
   if (cofheInitialized) return;
-  const config = createCofheConfig({
-    chainId: 8008135,
-    rpcUrl,
-  });
+  const config = createCofheConfig({} as any);
   createCofheClient(config);
   cofheInitialized = true;
 };
@@ -43,11 +40,11 @@ export const encryptFinancialInputs = async (input: FinancialInput) => {
   const client = await getFhenixClient();
 
   return {
-    revenue: await client.encrypt_uint256(input.revenue),
-    debt: await client.encrypt_uint256(input.debt),
-    burnRate: await client.encrypt_uint256(input.burnRate),
-    receivables: await client.encrypt_uint256(input.receivables),
-    cash: await client.encrypt_uint256(input.cash),
+    revenue: await client.encrypt_uint32(Number(input.revenue)),
+    debt: await client.encrypt_uint32(Number(input.debt)),
+    burnRate: await client.encrypt_uint32(Number(input.burnRate)),
+    receivables: await client.encrypt_uint32(Number(input.receivables)),
+    cash: await client.encrypt_uint32(Number(input.cash)),
     businessAge: await client.encrypt_uint32(input.businessAge),
   };
 };

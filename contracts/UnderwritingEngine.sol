@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {FHE, ebool, euint8, euint32, euint256} from "@fhenixprotocol/contracts/FHE.sol";
+import {FHE, ebool, euint8, euint32} from "@fhenixprotocol/contracts/FHE.sol";
 import {Permission, Permissioned} from "@fhenixprotocol/contracts/access/Permissioned.sol";
 import {BorrowerRegistry} from "./BorrowerRegistry.sol";
 
@@ -24,9 +24,9 @@ contract UnderwritingEngine is Ownable, Permissioned {
 
     struct CreditScore {
         euint8 riskBand;
-        euint256 maxLoanSize;
-        euint256 interestRateBps;
-        euint256 ltvBps;
+        euint32 maxLoanSize;
+        euint32 interestRateBps;
+        euint32 ltvBps;
         uint256 computedAt;
         bytes32 proofHash;
         bool exists;
@@ -65,26 +65,26 @@ contract UnderwritingEngine is Ownable, Permissioned {
         require(exists, "PROFILE_NOT_FOUND");
         require(block.timestamp - profile.submittedAt <= MAX_PROFILE_AGE, "PROFILE_TOO_OLD");
 
-        euint256 dscrScore = _computeDSCR(profile.annualRevenue, profile.totalDebt);
-        euint256 runwayScore = _computeRunway(profile.cashOnHand, profile.monthlyBurnRate);
-        euint256 leverageScore = _computeLeverageRatio(profile.totalDebt, profile.annualRevenue);
-        euint256 receivablesScore = _computeReceivablesScore(profile.accountsReceivable, profile.annualRevenue);
-        euint256 aggregate = _aggregateScore(dscrScore, runwayScore, leverageScore, receivablesScore);
+        euint32 dscrScore = _computeDSCR(profile.annualRevenue, profile.totalDebt);
+        euint32 runwayScore = _computeRunway(profile.cashOnHand, profile.monthlyBurnRate);
+        euint32 leverageScore = _computeLeverageRatio(profile.totalDebt, profile.annualRevenue);
+        euint32 receivablesScore = _computeReceivablesScore(profile.accountsReceivable, profile.annualRevenue);
+        euint32 aggregate = _aggregateScore(dscrScore, runwayScore, leverageScore, receivablesScore);
 
         ebool ageEligible = profile.businessAgeMonths.gte(FHE.asEuint32(MIN_BUSINESS_AGE));
-        euint256 adjustedScore = FHE.select(ageEligible, aggregate, FHE.asEuint256(0));
+        euint32 adjustedScore = FHE.select(ageEligible, aggregate, FHE.asEuint32(0));
         euint8 band = _mapToBand(adjustedScore);
 
-        (euint256 maxLoanSize, euint256 interestRateBps, euint256 ltvBps) = _computeLoanTerms(
+        (euint32 maxLoanSize, euint32 interestRateBps, euint32 ltvBps) = _computeLoanTerms(
             band,
             profile.annualRevenue
         );
         bytes32 proofHash = keccak256(
             abi.encode(
                 euint8.unwrap(band),
-                euint256.unwrap(maxLoanSize),
-                euint256.unwrap(interestRateBps),
-                euint256.unwrap(ltvBps),
+                euint32.unwrap(maxLoanSize),
+                euint32.unwrap(interestRateBps),
+                euint32.unwrap(ltvBps),
                 block.timestamp,
                 borrower
             )
@@ -101,8 +101,8 @@ contract UnderwritingEngine is Ownable, Permissioned {
         });
 
         scoreSignals[borrower] = ScoreSignals({
-            dscrAboveThreshold: FHE.asEuint32(dscrScore).gte(FHE.asEuint32(120)),
-            leverageWithinPolicy: FHE.asEuint32(leverageScore).gte(FHE.asEuint32(40)),
+            dscrAboveThreshold: dscrScore.gte(FHE.asEuint32(120)),
+            leverageWithinPolicy: leverageScore.gte(FHE.asEuint32(40)),
             covenantCompliant: band.lte(FHE.asEuint8(4))
         });
 
@@ -188,58 +188,54 @@ contract UnderwritingEngine is Ownable, Permissioned {
         return fresh;
     }
 
-    function _computeDSCR(euint256 revenue, euint256 debt) internal pure returns (euint256) {
-        euint32 rev = FHE.asEuint32(revenue);
-        euint32 d = FHE.asEuint32(debt);
+    function _computeDSCR(euint32 revenue, euint32 debt) internal pure returns (euint32) {
+        euint32 rev = revenue;
+        euint32 d = debt;
         euint32 safeDebt = FHE.select(d.eq(FHE.asEuint32(0)), FHE.asEuint32(1), d);
         euint32 dscr = rev.mul(FHE.asEuint32(100)).div(safeDebt);
-        euint32 capped = FHE.min(dscr, FHE.asEuint32(200));
-        return FHE.asEuint256(capped);
+        return FHE.min(dscr, FHE.asEuint32(200));
     }
 
-    function _computeRunway(euint256 cash, euint256 burn) internal pure returns (euint256) {
-        euint32 c = FHE.asEuint32(cash);
-        euint32 b = FHE.asEuint32(burn);
+    function _computeRunway(euint32 cash, euint32 burn) internal pure returns (euint32) {
+        euint32 c = cash;
+        euint32 b = burn;
         euint32 safeBurn = FHE.select(b.eq(FHE.asEuint32(0)), FHE.asEuint32(1), b);
         euint32 months = c.div(safeBurn);
         euint32 cappedMonths = FHE.min(months, FHE.asEuint32(36));
-        euint32 runwayScore = cappedMonths.mul(FHE.asEuint32(100)).div(FHE.asEuint32(36));
-        return FHE.asEuint256(runwayScore);
+        return cappedMonths.mul(FHE.asEuint32(100)).div(FHE.asEuint32(36));
     }
 
-    function _computeLeverageRatio(euint256 debt, euint256 revenue) internal pure returns (euint256) {
-        euint32 d = FHE.asEuint32(debt);
-        euint32 r = FHE.asEuint32(revenue);
+    function _computeLeverageRatio(euint32 debt, euint32 revenue) internal pure returns (euint32) {
+        euint32 d = debt;
+        euint32 r = revenue;
         euint32 safeRevenue = FHE.select(r.eq(FHE.asEuint32(0)), FHE.asEuint32(1), r);
         euint32 leverage = d.mul(FHE.asEuint32(100)).div(safeRevenue);
         euint32 leverageCapped = FHE.min(leverage, FHE.asEuint32(100));
-        euint32 score = FHE.asEuint32(100) - leverageCapped;
-        return FHE.asEuint256(score);
+        return FHE.asEuint32(100) - leverageCapped;
     }
 
-    function _computeReceivablesScore(euint256 receivables, euint256 revenue) internal pure returns (euint256) {
-        euint32 ar = FHE.asEuint32(receivables);
-        euint32 quarterlyRevenue = FHE.asEuint32(revenue).div(FHE.asEuint32(4));
+    function _computeReceivablesScore(euint32 receivables, euint32 revenue) internal pure returns (euint32) {
+        euint32 ar = receivables;
+        euint32 quarterlyRevenue = revenue.div(FHE.asEuint32(4));
         euint32 safeQuarterlyRevenue = FHE.select(
             quarterlyRevenue.eq(FHE.asEuint32(0)),
             FHE.asEuint32(1),
             quarterlyRevenue
         );
         euint32 ratio = ar.mul(FHE.asEuint32(100)).div(safeQuarterlyRevenue);
-        euint32 cappedRatio = FHE.min(ratio, FHE.asEuint32(100));
-        return FHE.asEuint256(cappedRatio);
+        return FHE.min(ratio, FHE.asEuint32(100));
     }
 
     function _aggregateScore(
-        euint256 dscrScore,
-        euint256 runwayScore,
-        euint256 leverageScore,
-        euint256 receivablesScore
-    ) internal pure returns (euint256 totalScore) {
-        euint32 dscr = FHE.asEuint32(dscrScore);
-        euint32 runway = FHE.asEuint32(runwayScore);
-        euint32 leverage = FHE.asEuint32(leverageScore);
-        euint32 receivables = FHE.asEuint32(receivablesScore);
+        euint32 dscrScore,
+        euint32 runwayScore,
+        euint32 leverageScore,
+        euint32 receivablesScore
+    ) internal pure returns (euint32 totalScore) {
+        euint32 dscr = dscrScore;
+        euint32 runway = runwayScore;
+        euint32 leverage = leverageScore;
+        euint32 receivables = receivablesScore;
 
         euint32 weighted = dscr
             .mul(FHE.asEuint32(DSCR_WEIGHT))
@@ -247,11 +243,11 @@ contract UnderwritingEngine is Ownable, Permissioned {
             .add(leverage.mul(FHE.asEuint32(LEVERAGE_WEIGHT)))
             .add(receivables.mul(FHE.asEuint32(RECEIVABLES_WEIGHT)));
 
-        return FHE.asEuint256(weighted.div(FHE.asEuint32(100)));
+        return weighted.div(FHE.asEuint32(100));
     }
 
-    function _mapToBand(euint256 score) internal pure returns (euint8 band) {
-        euint32 s = FHE.asEuint32(score);
+    function _mapToBand(euint32 score) internal pure returns (euint8 band) {
+        euint32 s = score;
         band = FHE.asEuint8(6);
 
         // FHE.select is required because the score is encrypted, so branching must remain on ciphertexts.
@@ -262,10 +258,10 @@ contract UnderwritingEngine is Ownable, Permissioned {
         band = FHE.select(s.gte(FHE.asEuint32(BAND_AA_THRESHOLD)), FHE.asEuint8(1), band);
     }
 
-    function _computeLoanTerms(euint8 band, euint256 revenue)
+    function _computeLoanTerms(euint8 band, euint32 revenue)
         internal
         pure
-        returns (euint256 maxLoanSize, euint256 interestRateBps, euint256 ltvBps)
+        returns (euint32 maxLoanSize, euint32 interestRateBps, euint32 ltvBps)
     {
         euint32 bpsRate = FHE.asEuint32(0);
         euint32 ltv = FHE.asEuint32(0);
@@ -289,14 +285,14 @@ contract UnderwritingEngine is Ownable, Permissioned {
         loanPct = FHE.select(band.eq(FHE.asEuint8(4)), FHE.asEuint32(15), loanPct);
         loanPct = FHE.select(band.eq(FHE.asEuint8(5)), FHE.asEuint32(10), loanPct);
 
-        euint32 maxLoan = FHE.asEuint32(revenue).mul(loanPct).div(FHE.asEuint32(100));
-        maxLoanSize = FHE.asEuint256(maxLoan);
-        interestRateBps = FHE.asEuint256(bpsRate);
-        ltvBps = FHE.asEuint256(ltv);
+        euint32 maxLoan = revenue.mul(loanPct).div(FHE.asEuint32(100));
+        maxLoanSize = maxLoan;
+        interestRateBps = bpsRate;
+        ltvBps = ltv;
     }
 
-    function _bucketRevenue(euint256 annualRevenue) internal pure returns (string memory) {
-        euint32 revenue = FHE.asEuint32(annualRevenue);
+    function _bucketRevenue(euint32 annualRevenue) internal pure returns (string memory) {
+        euint32 revenue = annualRevenue;
         euint8 bucketIndex = FHE.asEuint8(1);
         bucketIndex = FHE.select(revenue.gte(FHE.asEuint32(1_000_000)), FHE.asEuint8(2), bucketIndex);
         bucketIndex = FHE.select(revenue.gte(FHE.asEuint32(5_000_000)), FHE.asEuint8(3), bucketIndex);

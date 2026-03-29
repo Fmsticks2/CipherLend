@@ -19,14 +19,13 @@ async function buildPermission(signer, contractAddress) {
 }
 
 async function encryptProfile(values) {
-  const fhe = hre.fhenixjs;
   return {
-    revenue: await fhe.encrypt_uint256(values.revenue),
-    debt: await fhe.encrypt_uint256(values.debt),
-    burnRate: await fhe.encrypt_uint256(values.burnRate),
-    receivables: await fhe.encrypt_uint256(values.receivables),
-    cash: await fhe.encrypt_uint256(values.cash),
-    businessAge: await fhe.encrypt_uint32(values.businessAge),
+    revenue: Number(values.revenue),
+    debt: Number(values.debt),
+    burnRate: Number(values.burnRate),
+    receivables: Number(values.receivables),
+    cash: Number(values.cash),
+    businessAge: Number(values.businessAge),
   };
 }
 

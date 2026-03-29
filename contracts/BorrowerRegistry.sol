@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {FHE, ebool, euint8, euint32, euint128, euint256, inEuint32, inEuint256} from "@fhenixprotocol/contracts/FHE.sol";
+import {FHE, ebool, euint8, euint32} from "@fhenixprotocol/contracts/FHE.sol";
 import {Permission, Permissioned} from "@fhenixprotocol/contracts/access/Permissioned.sol";
 
 contract BorrowerRegistry is Permissioned {
     struct BorrowerProfile {
-        euint256 annualRevenue;
-        euint256 totalDebt;
-        euint256 monthlyBurnRate;
-        euint256 accountsReceivable;
-        euint256 cashOnHand;
+        euint32 annualRevenue;
+        euint32 totalDebt;
+        euint32 monthlyBurnRate;
+        euint32 accountsReceivable;
+        euint32 cashOnHand;
         euint32 businessAgeMonths;
         uint8 industrySector;
         address borrower;
@@ -26,12 +26,12 @@ contract BorrowerRegistry is Permissioned {
     event ProfileUpdated(address indexed borrower, uint256 version);
 
     function submitProfile(
-        inEuint256 calldata revenue,
-        inEuint256 calldata debt,
-        inEuint256 calldata burnRate,
-        inEuint256 calldata receivables,
-        inEuint256 calldata cash,
-        inEuint32 calldata businessAge,
+        uint256 revenue,
+        uint256 debt,
+        uint256 burnRate,
+        uint256 receivables,
+        uint256 cash,
+        uint32 businessAge,
         uint8 sector
     ) external {
         require(!hasProfile[msg.sender], "PROFILE_EXISTS");
@@ -40,12 +40,12 @@ contract BorrowerRegistry is Permissioned {
     }
 
     function updateProfile(
-        inEuint256 calldata revenue,
-        inEuint256 calldata debt,
-        inEuint256 calldata burnRate,
-        inEuint256 calldata receivables,
-        inEuint256 calldata cash,
-        inEuint32 calldata businessAge,
+        uint256 revenue,
+        uint256 debt,
+        uint256 burnRate,
+        uint256 receivables,
+        uint256 cash,
+        uint32 businessAge,
         uint8 sector
     ) external {
         require(hasProfile[msg.sender], "PROFILE_NOT_FOUND");
@@ -78,11 +78,11 @@ contract BorrowerRegistry is Permissioned {
         BorrowerProfile storage profile = profiles[borrower];
 
         // Revenue remains encrypted at all times and we only decrypt a low-entropy bucket index.
-        euint128 revenue = FHE.asEuint128(profile.annualRevenue);
+        euint32 revenue = profile.annualRevenue;
         euint8 bucketIndex = FHE.asEuint8(1);
-        ebool atLeastOneMillion = revenue.gte(FHE.asEuint128(1_000_000));
-        ebool atLeastFiveMillion = revenue.gte(FHE.asEuint128(5_000_000));
-        ebool atLeastTwentyMillion = revenue.gte(FHE.asEuint128(20_000_000));
+        ebool atLeastOneMillion = revenue.gte(FHE.asEuint32(1_000_000));
+        ebool atLeastFiveMillion = revenue.gte(FHE.asEuint32(5_000_000));
+        ebool atLeastTwentyMillion = revenue.gte(FHE.asEuint32(20_000_000));
 
         // We use FHE.select rather than if/else so conditional branching is executed on ciphertext, not plaintext.
         bucketIndex = FHE.select(atLeastOneMillion, FHE.asEuint8(2), bucketIndex);
@@ -98,27 +98,21 @@ contract BorrowerRegistry is Permissioned {
 
     function _upsertProfile(
         address borrower,
-        inEuint256 calldata revenue,
-        inEuint256 calldata debt,
-        inEuint256 calldata burnRate,
-        inEuint256 calldata receivables,
-        inEuint256 calldata cash,
-        inEuint32 calldata businessAge,
+        uint256 revenue,
+        uint256 debt,
+        uint256 burnRate,
+        uint256 receivables,
+        uint256 cash,
+        uint32 businessAge,
         uint8 sector,
         uint256 version
     ) internal {
-        euint128 annualRevenue128 = FHE.asEuint128(revenue);
-        euint128 totalDebt128 = FHE.asEuint128(debt);
-        euint128 monthlyBurnRate128 = FHE.asEuint128(burnRate);
-        euint128 accountsReceivable128 = FHE.asEuint128(receivables);
-        euint128 cashOnHand128 = FHE.asEuint128(cash);
-
         profiles[borrower] = BorrowerProfile({
-            annualRevenue: FHE.asEuint256(annualRevenue128),
-            totalDebt: FHE.asEuint256(totalDebt128),
-            monthlyBurnRate: FHE.asEuint256(monthlyBurnRate128),
-            accountsReceivable: FHE.asEuint256(accountsReceivable128),
-            cashOnHand: FHE.asEuint256(cashOnHand128),
+            annualRevenue: FHE.asEuint32(uint32(revenue)),
+            totalDebt: FHE.asEuint32(uint32(debt)),
+            monthlyBurnRate: FHE.asEuint32(uint32(burnRate)),
+            accountsReceivable: FHE.asEuint32(uint32(receivables)),
+            cashOnHand: FHE.asEuint32(uint32(cash)),
             businessAgeMonths: FHE.asEuint32(businessAge),
             industrySector: sector,
             borrower: borrower,

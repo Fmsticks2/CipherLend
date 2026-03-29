@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("fhenix-hardhat-plugin");
+require("fhenix-hardhat-network");
 require("dotenv").config();
 
 /** @type {import("hardhat/config").HardhatUserConfig} */

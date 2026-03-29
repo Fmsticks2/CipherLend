@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { encryptFinancialInputs } from "../lib/fhenix";
 import { getBorrowerRegistry } from "../lib/contracts";
 
 const router = Router();
@@ -19,27 +18,18 @@ router.post("/submit", async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const encrypted = await encryptFinancialInputs({
-      revenue: BigInt(revenue),
-      debt: BigInt(debt),
-      burnRate: BigInt(burnRate),
-      receivables: BigInt(receivables),
-      cash: BigInt(cash),
-      businessAge: Number(businessAge),
-    });
-
     const registry = getBorrowerRegistry();
     const tx = await registry.submitProfile(
-      encrypted.revenue,
-      encrypted.debt,
-      encrypted.burnRate,
-      encrypted.receivables,
-      encrypted.cash,
-      encrypted.businessAge,
+      BigInt(revenue),
+      BigInt(debt),
+      BigInt(burnRate),
+      BigInt(receivables),
+      BigInt(cash),
+      Number(businessAge),
       Number(sector)
     );
     const receipt = await tx.wait();
-    const signerAddress = await registry.runner!.getAddress();
+    const signerAddress = await (registry.runner as any).getAddress();
     const metadata = await registry.getProfileMetadata(signerAddress);
 
     return res.json({

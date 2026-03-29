@@ -2,7 +2,7 @@ import { Contract } from "ethers";
 import { getProvider, getSigner } from "./fhenix";
 
 const borrowerRegistryAbi = [
-  "function submitProfile((bytes,int32),(bytes,int32),(bytes,int32),(bytes,int32),(bytes,int32),(bytes,int32),uint8)",
+  "function submitProfile(uint256,uint256,uint256,uint256,uint256,uint32,uint8)",
   "function getProfileMetadata(address) view returns (uint8,uint256,uint256,bool)",
 ];
 

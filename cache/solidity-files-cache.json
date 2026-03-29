@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\User\\Desktop\\CipherLend\\contracts\\BorrowerRegistry.sol": {
-      "lastModificationDate": 1774717155184,
-      "contentHash": "a56f0902f07829d69f756bf09e097c35",
+      "lastModificationDate": 1774718619263,
+      "contentHash": "bffe1d044a2fe3adf6bcd4a329228d61",
       "sourceName": "contracts/BorrowerRegistry.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -513,8 +513,8 @@
       ]
     },
     "C:\\Users\\User\\Desktop\\CipherLend\\contracts\\UnderwritingEngine.sol": {
-      "lastModificationDate": 1774717194310,
-      "contentHash": "5a3045157d1102c522772d2ad7653f4e",
+      "lastModificationDate": 1774718681731,
+      "contentHash": "c8bca205dd2fd090c27b3ea58ee7dda4",
       "sourceName": "contracts/UnderwritingEngine.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -743,6 +743,44 @@
       ],
       "artifacts": [
         "PermitRegistry"
+      ]
+    },
+    "C:\\Users\\User\\Desktop\\CipherLend\\node_modules\\@fhenixprotocol\\contracts\\utils\\debug\\MockFheOps.sol": {
+      "lastModificationDate": 1774715496543,
+      "contentHash": "7a543e92f4cca54e3b647b89c069748e",
+      "sourceName": "@fhenixprotocol/contracts/utils/debug/MockFheOps.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.19 <0.9.0"
+      ],
+      "artifacts": [
+        "MockFheOps",
+        "Precompiles"
       ]
     }
   }
